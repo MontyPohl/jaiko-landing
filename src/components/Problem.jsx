@@ -36,7 +36,7 @@ export default function Problem() {
           color: '#111827',
         }}>
           Conseguir vivienda compartida en Paraguay está{' '}
-          <span style={{ color: '#EF4444' }}>roto.</span>
+          <span style={{ color: '#EF4444' }}>dificil.</span>
         </h2>
 
         <div style={{
