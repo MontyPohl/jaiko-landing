@@ -26,31 +26,12 @@ export default function Navbar() {
         justifyContent: 'space-between',
         height: 56,
       }}>
-        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{
-            width: 38,
-            height: 38,
-            background: '#fff',
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <span style={{
-              fontFamily: 'var(--font-head)',
-              fontWeight: 800,
-              fontSize: 18,
-              color: '#2563EB',
-              lineHeight: 1,
-            }}>J!</span>
-          </div>
-          <span style={{
-            fontFamily: 'var(--font-head)',
-            fontWeight: 700,
-            fontSize: 20,
-            color: '#fff',
-            letterSpacing: '-0.03em',
-          }}>jaiko</span>
+        <a href="#" style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/logo.png"
+            alt="Jaiko"
+            style={{ height: 52, width: 'auto' }}
+          />
         </a>
 
         <a href="#waitlist">
