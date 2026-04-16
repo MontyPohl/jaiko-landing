@@ -1,4 +1,4 @@
-// Navbar.jsx — Dark Theme
+// Navbar.jsx — Dark Theme (Versión Limpia)
 import { useState, useEffect } from 'react'
 
 export default function Navbar() {
@@ -16,8 +16,7 @@ export default function Navbar() {
         position: 'fixed',
         top: 0, left: 0, right: 0,
         zIndex: 100,
-        // Sin scroll → transparente (se funde con el Hero oscuro)
-        // Con scroll → vidrio oscuro con blur
+        // Estilo moderno: transparente al inicio, oscuro con blur al hacer scroll
         background: scrolled ? 'rgba(8, 13, 26, 0.85)' : 'transparent',
         backdropFilter: scrolled ? 'blur(16px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'none',
@@ -27,10 +26,16 @@ export default function Navbar() {
     >
       <div
         className="container"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          height: 56,
+          padding: '0 20px' // Ajuste opcional para márgenes internos
+        }}
       >
-        {/* Logo */}
-        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {/* Logo con el icono "J!" */}
+        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
           <div style={{
             width: 36, height: 36,
             background: '#3B82F6',
@@ -47,12 +52,12 @@ export default function Navbar() {
           <span style={{
             fontFamily: 'var(--font-head)',
             fontWeight: 800, fontSize: 20,
-            color: 'var(--text)',
+            color: '#fff', // Cambiado a blanco para mejor contraste en dark mode
             letterSpacing: '-0.04em',
           }}>jaiko</span>
         </a>
 
-        {/* CTA */}
+        {/* CTA - Botón Naranja */}
         <a href="#waitlist">
           <button
             style={{

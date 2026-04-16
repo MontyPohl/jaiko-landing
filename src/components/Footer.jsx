@@ -1,4 +1,4 @@
-// Footer.jsx — Dark Theme
+// Footer.jsx — Dark Theme (Versión Limpia)
 
 export default function Footer() {
   return (
@@ -14,7 +14,8 @@ export default function Footer() {
         flexWrap: 'wrap',
         gap: 16,
       }}>
-        {/* Logo */}
+        
+        {/* Logo Unificado (Mismo estilo que la Navbar) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{
             width: 34, height: 34,
@@ -36,18 +37,26 @@ export default function Footer() {
           }}>jaiko</span>
         </div>
 
-        <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>
+        {/* Copyright */}
+        <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: 0 }}>
           © {new Date().getFullYear()} Jaiko. Paraguay.
         </p>
 
+        {/* Enlace de Contacto con Hover */}
         <a
           href="mailto:hola@jaiko.app"
-          style={{ color: 'var(--text-muted)', fontSize: 13, transition: 'color 0.2s' }}
+          style={{ 
+            color: 'var(--text-muted)', 
+            fontSize: 13, 
+            textDecoration: 'none',
+            transition: 'color 0.2s' 
+          }}
           onMouseEnter={e => e.target.style.color = 'var(--text)'}
           onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}
         >
-          Contacto
+          hola@jaiko.app
         </a>
+        
       </div>
     </footer>
   )
