@@ -1,13 +1,3 @@
-// Problem.jsx — Dark Theme
-//
-// CAMBIOS:
-// 1. textAlign: 'center' en el header (tag + h2)
-//    → El título ya no queda pegado a la izquierda.
-// 2. maxWidth en el h2 + margin: '0 auto'
-//    → Evita que el título se estire demasiado en pantallas anchas
-//    y se vea como una pared de texto de 3 líneas.
-// 3. Colores actualizados al dark theme con CSS variables.
-
 const problems = [
   {
     icon: '💸',
@@ -34,18 +24,10 @@ export default function Problem() {
       borderTop: '1px solid var(--border)',
     }}>
       <div className="container">
-
-        {/* Header centrado */}
         <div style={{ textAlign: 'center', marginBottom: 52 }}>
           <div style={{ marginBottom: 14 }}>
             <span className="tag">El problema</span>
           </div>
-
-          {/*
-            maxWidth: 620px + margin: '0 auto':
-            En claro, este h2 grande y left-aligned llenaba toda la pantalla en 3 líneas.
-            Centrado con maxWidth lo contiene y lo hace más fácil de leer.
-          */}
           <h2 style={{
             fontSize: 'clamp(30px, 4.5vw, 52px)',
             fontWeight: 800,
@@ -54,11 +36,10 @@ export default function Problem() {
             margin: '0 auto',
           }}>
             Conseguir vivienda compartida en Paraguay está{' '}
-            <span style={{ color: '#EF4444' }}>dificil.</span>
+            <span style={{ color: '#EF4444' }}>difícil.</span>
           </h2>
         </div>
 
-        {/* Cards */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',

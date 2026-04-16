@@ -1,53 +1,44 @@
-// Footer.jsx — Dark Theme (Versión Limpia)
-
 export default function Footer() {
   return (
     <footer style={{
       background: 'var(--bg2)',
       borderTop: '1px solid var(--border)',
-      padding: '32px 0',
+      padding: '48px 0',
     }}>
       <div className="container" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: 16,
+        gap: 24,
       }}>
         
-        {/* Logo Unificado (Mismo estilo que la Navbar) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{
-            width: 34, height: 34,
-            background: '#3B82F6',
-            borderRadius: 8,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
-          }}>
-            <span style={{
-              fontFamily: 'var(--font-head)',
-              fontWeight: 800, fontSize: 16,
-              color: '#fff',
-            }}>J!</span>
-          </div>
+        {/* Logo Unificado */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img 
+            src="/logo.png" 
+            alt="Jaiko Logo" 
+            style={{ height: 32, width: 'auto' }}
+            referrerPolicy="no-referrer"
+          />
           <span style={{
             fontFamily: 'var(--font-head)',
-            fontWeight: 700, fontSize: 18,
+            fontWeight: 700, fontSize: 20,
             color: 'var(--text)',
           }}>jaiko</span>
         </div>
 
         {/* Copyright */}
-        <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: 0 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: 14, margin: 0 }}>
           © {new Date().getFullYear()} Jaiko. Paraguay.
         </p>
 
-        {/* Enlace de Contacto con Hover */}
+        {/* Enlace de Contacto */}
         <a
           href="mailto:hola@jaiko.app"
           style={{ 
             color: 'var(--text-muted)', 
-            fontSize: 13, 
+            fontSize: 14, 
             textDecoration: 'none',
             transition: 'color 0.2s' 
           }}

@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* ══════════════════════════════════════════════════════
    index.css — Jaiko Landing — Dark Theme
    ══════════════════════════════════════════════════════ */
@@ -19,15 +21,14 @@
   --border:       rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.16);
 
-  /* ── Azul ── */
-  --blue:       #3B82F6;
-  --blue-dark:  #2563EB;
-  --blue-light: rgba(59, 130, 246, 0.12);
-  --blue-mid:   rgba(59, 130, 246, 0.25);
+  /* ── Colores del Logo (Ajustados) ── */
+  --blue:       #2563EB; /* Azul vibrante del logo */
+  --blue-dark:  #1D4ED8;
+  --blue-light: rgba(37, 99, 235, 0.12);
+  --blue-mid:   rgba(37, 99, 235, 0.25);
 
-  /* ── Naranja ── */
-  --orange:       #F97316;
-  --orange-dark:  #EA6C0A;
+  --orange:       #F97316; /* Naranja del logo */
+  --orange-dark:  #EA580C;
   --orange-light: rgba(249, 115, 22, 0.12);
   --orange-dim:   rgba(249, 115, 22, 0.10);
 
@@ -117,14 +118,12 @@ input, select, textarea {
   border-radius: var(--radius);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-
-  /* Dropdown nativo oscuro en Chrome/Edge/Safari */
   color-scheme: dark;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 input::placeholder, textarea::placeholder { color: var(--text-faint); }
@@ -142,9 +141,6 @@ label {
   letter-spacing: 0.02em;
 }
 
-/* ── Autofill de Chrome — evita el fondo blanco ──
-   Chrome sobreescribe el background de los inputs con autofill.
-   La única forma de evitarlo es usar box-shadow inset como "fondo falso". */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
@@ -204,7 +200,7 @@ input:-webkit-autofill:focus {
   border: none;
   cursor: pointer;
   transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
 }
 
 .btn-blue:hover { background: var(--blue-dark); transform: translateY(-1px); }
@@ -230,10 +226,6 @@ input:-webkit-autofill:focus {
   background: rgba(255, 255, 255, 0.04);
 }
 
-/* ── Responsive helpers ──
-   POR QUÉ acá: los inline styles no soportan @media queries.
-   .form-grid-2 permite que los pares de campos del formulario
-   se apilen en una columna en teléfonos.               */
 .form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

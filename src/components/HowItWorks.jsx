@@ -1,18 +1,16 @@
-// HowItWorks.jsx — Dark Theme
-
 const steps = [
   {
     number: '1',
-    iconBg: '#3B82F6',
-    cardAccent: 'rgba(59,130,246,0.12)',
+    iconBg: 'var(--blue)',
+    cardAccent: 'var(--blue-light)',
     icon: '📝',
     title: 'Creá tu perfil',
     desc: 'Contanos quién sos, tus hábitos, tu presupuesto y la zona de Central donde querés vivir.',
   },
   {
     number: '2',
-    iconBg: '#F97316',
-    cardAccent: 'rgba(249,115,22,0.12)',
+    iconBg: 'var(--orange)',
+    cardAccent: 'var(--orange-light)',
     icon: '🔍',
     title: 'Explorá perfiles',
     desc: 'Nuestro sistema te muestra personas compatibles según tus preferencias de convivencia.',
@@ -23,7 +21,7 @@ const steps = [
     cardAccent: 'rgba(22,163,74,0.12)',
     icon: '💬',
     title: 'Conectá y acordá',
-    desc: 'Chateá con los candidatos, conocanse y definan juntos las condiciones del alquiler compartido.',
+    desc: 'Chateá con los candidatos, conozcanse y definan juntos las condiciones del alquiler compartido.',
   },
   {
     number: '4',
@@ -54,7 +52,7 @@ export default function HowItWorks() {
             marginBottom: 14,
           }}>
             En solo 4 pasos estás conectando<br />
-            con tu futuro <span style={{ color: '#3B82F6' }}>roomie</span>
+            con tu futuro <span style={{ color: 'var(--blue)' }}>roomie</span>
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: 16, maxWidth: 480, margin: '0 auto' }}>
             De forma segura y sin complicaciones.
@@ -89,7 +87,6 @@ export default function HowItWorks() {
                 e.currentTarget.style.borderColor = 'var(--border)'
               }}
             >
-              {/* Número */}
               <div style={{
                 position: 'absolute', top: -14, left: '50%',
                 transform: 'translateX(-50%)',
@@ -105,7 +102,6 @@ export default function HowItWorks() {
                 {step.number}
               </div>
 
-              {/* Ícono */}
               <div style={{
                 width: 64, height: 64,
                 background: step.cardAccent,

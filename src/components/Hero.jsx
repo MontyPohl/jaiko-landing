@@ -1,6 +1,3 @@
-// Hero.jsx — Dark Theme
-// Estructura: Logo → Badge → H1 → Párrafo → Botón → Pills
-
 const FEATURE_PILLS = [
   { icon: '🔍', label: 'Buscar roomies' },
   { icon: '🏠', label: 'Publicar habitación' },
@@ -23,11 +20,11 @@ export default function Hero() {
       overflow: 'hidden',
       background: 'var(--bg)',
     }}>
-      {/* Blobs decorativos — más intensos en dark para dar profundidad */}
+      {/* Blobs decorativos */}
       <div style={{
         position: 'absolute', top: '5%', right: '-8%',
         width: 500, height: 500,
-        background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
       <div style={{
@@ -37,7 +34,6 @@ export default function Hero() {
         pointerEvents: 'none',
       }} />
 
-      {/* Contenedor centrado */}
       <div style={{
         position: 'relative',
         display: 'flex',
@@ -48,39 +44,32 @@ export default function Hero() {
         width: '100%',
       }}>
 
-        {/* 1. LOGO */}
+        {/* LOGO GRANDE EN HERO */}
         <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 10,
+          display: 'inline-flex', alignItems: 'center', gap: 12,
           marginBottom: 32,
           animation: 'fadeUp 0.5s ease both',
         }}>
-          <div style={{
-            width: 56, height: 56,
-            background: '#3B82F6',
-            borderRadius: 14,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 20px rgba(59,130,246,0.35)',
-          }}>
-            <span style={{
-              fontFamily: 'var(--font-head)',
-              fontWeight: 800, fontSize: 24,
-              color: '#fff', lineHeight: 1,
-            }}>J!</span>
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Jaiko Logo" 
+            style={{ height: 80, width: 'auto' }}
+            referrerPolicy="no-referrer"
+          />
           <span style={{
             fontFamily: 'var(--font-head)',
-            fontWeight: 800, fontSize: 34,
+            fontWeight: 800, fontSize: 48,
             color: 'var(--text)',
             letterSpacing: '-0.04em',
           }}>jaiko</span>
         </div>
 
-        {/* 2. BADGE */}
+        {/* BADGE */}
         <div style={{ marginBottom: 28, animation: 'fadeUp 0.5s ease 0.08s both' }}>
           <span className="tag">
             <span style={{
               width: 7, height: 7,
-              background: '#F97316',
+              background: 'var(--orange)',
               borderRadius: '50%',
               display: 'inline-block',
             }} />
@@ -88,7 +77,7 @@ export default function Hero() {
           </span>
         </div>
 
-        {/* 3. TÍTULO */}
+        {/* TÍTULO */}
         <h1 style={{
           fontSize: 'clamp(42px, 7vw, 80px)',
           fontWeight: 800,
@@ -99,12 +88,12 @@ export default function Hero() {
           animation: 'fadeUp 0.5s ease 0.15s both',
         }}>
           Encontrá tu{' '}
-          <span style={{ color: '#3B82F6' }}>roomie ideal</span>
+          <span style={{ color: 'var(--blue)' }}>roomie ideal</span>
           <br />
-          <span style={{ color: '#F97316' }}>en Paraguay.</span>
+          <span style={{ color: 'var(--orange)' }}>en Paraguay.</span>
         </h1>
 
-        {/* 4. PÁRRAFO */}
+        {/* PÁRRAFO */}
         <p style={{
           fontSize: 'clamp(16px, 2vw, 19px)',
           color: 'var(--text-muted)',
@@ -118,7 +107,7 @@ export default function Hero() {
           tienen una habitación libre. Seguro, rápido y según tus preferencias.
         </p>
 
-        {/* 5. BOTÓN */}
+        {/* BOTÓN */}
         <div style={{ animation: 'fadeUp 0.5s ease 0.3s both' }}>
           <a href="#waitlist">
             <button
@@ -130,7 +119,7 @@ export default function Hero() {
           </a>
         </div>
 
-        {/* 6. FEATURE PILLS */}
+        {/* FEATURE PILLS */}
         <div style={{
           display: 'flex',
           gap: 10,

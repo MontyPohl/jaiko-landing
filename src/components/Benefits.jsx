@@ -1,5 +1,3 @@
-// Benefits.jsx — Dark Theme
-
 const benefits = [
   { icon: '🔒', title: 'Seguro',            desc: 'Todos los perfiles son verificados para tu tranquilidad.' },
   { icon: '⚡', title: 'Rápido',            desc: 'Encuentra tu roomie ideal en minutos con nuestro sistema inteligente.' },
@@ -30,7 +28,7 @@ export default function Benefits() {
             margin: '0 auto',
           }}>
             Diseñado para que encontrar roomie sea{' '}
-            <span style={{ color: '#F97316' }}>seguro, rápido</span> y sin dramas
+            <span style={{ color: 'var(--orange)' }}>seguro, rápido</span> y sin dramas
           </h2>
         </div>
 
@@ -51,8 +49,8 @@ export default function Benefits() {
                 transition: 'box-shadow 0.2s, border-color 0.2s',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(59,130,246,0.25)'
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(59,130,246,0.1)'
+                e.currentTarget.style.borderColor = 'var(--blue-mid)'
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(37,99,235,0.1)'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.borderColor = 'var(--border)'

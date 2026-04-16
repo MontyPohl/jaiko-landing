@@ -1,18 +1,3 @@
-// WaitlistForm.jsx — Dark Theme
-//
-// FIXES aplicados:
-// 1. CENTRADO: se eliminó className="container" y se puso margin/padding
-//    explícito en el div. Así el centrado no depende de ninguna clase CSS
-//    externa que pudiera no estar cargada.
-//    POR QUÉ: los inline styles son 100% seguros → siempre se aplican.
-//
-// 2. MOBILE: gridTemplateColumns cambió a className="form-grid-2"
-//    (definida en index.css con @media query).
-//    POR QUÉ: los inline styles no soportan @media → necesitamos la clase CSS
-//    para que los pares de campos se apilen en pantallas pequeñas.
-//
-// 3. DARK THEME: todos los colores hardcodeados reemplazados por var(--).
-
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
@@ -20,7 +5,7 @@ const CIUDADES = [
   'Asunción', 'Fernando de la Mora', 'Luque', 'San Lorenzo',
   'Lambaré', 'Capiatá', 'Mariano Roque Alonso', 'Ñemby',
   'Villa Elisa', 'Itauguá', 'Guarambaré', 'Ypacaraí',
-  'Limpio', 'Villeta', 'Itá', 'Areguá', 'Otra zona de Central',
+  'Limpio', 'Villeta', 'Itá', 'Areguá', 'Otra zona de Central','Otra ciudad del país',
 ]
 
 const initialForm = {
@@ -85,7 +70,6 @@ export default function WaitlistForm() {
     }
   }
 
-  // ── Pantalla de éxito ──
   if (status === 'success') {
     return (
       <section id="waitlist" style={{
@@ -93,15 +77,14 @@ export default function WaitlistForm() {
         background: 'var(--bg)',
         borderTop: '1px solid var(--border)',
       }}>
-        {/* Centrado explícito — sin depender de .container */}
         <div style={{ maxWidth: 560, margin: '0 auto', padding: '0 24px', width: '100%' }}>
           <div style={{
             background: 'var(--surface)',
-            border: '1px solid rgba(59,130,246,0.25)',
+            border: '1px solid var(--blue-mid)',
             borderRadius: 24,
             padding: '56px 40px',
             textAlign: 'center',
-            boxShadow: '0 8px 40px rgba(59,130,246,0.12)',
+            boxShadow: '0 8px 40px rgba(37,99,235,0.12)',
           }}>
             <span style={{ fontSize: 52, display: 'block', marginBottom: 20 }}>🎉</span>
             <h2 style={{
@@ -131,28 +114,17 @@ export default function WaitlistForm() {
     )
   }
 
-  // ── Formulario principal ──
   return (
     <section id="waitlist" style={{
       padding: '90px 0',
       background: 'var(--bg)',
       borderTop: '1px solid var(--border)',
     }}>
-
-      {/*
-        POR QUÉ margin: '0 auto' + width: '100%' explícito:
-        En lugar de depender de .container (que podría no aplicar margin en
-        algún contexto), lo declaramos inline. Un div con maxWidth + margin auto
-        + width 100% SIEMPRE se centra, sin excepciones.
-      */}
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 24px', width: '100%' }}>
-
-        {/* Header centrado */}
         <div style={{ textAlign: 'center', marginBottom: 44 }}>
           <div style={{ marginBottom: 14 }}>
             <span className="tag">Acceso anticipado</span>
           </div>
-
           <h2 style={{
             fontFamily: 'var(--font-head)',
             fontSize: 'clamp(32px, 4.5vw, 50px)',
@@ -162,9 +134,8 @@ export default function WaitlistForm() {
             letterSpacing: '-0.03em',
           }}>
             Anotate en la<br />
-            <span style={{ color: '#F97316' }}>lista de espera.</span>
+            <span style={{ color: 'var(--orange)' }}>lista de espera.</span>
           </h2>
-
           <p style={{
             color: 'var(--text-muted)',
             fontSize: 16,
@@ -176,7 +147,6 @@ export default function WaitlistForm() {
           </p>
         </div>
 
-        {/* Form card */}
         <form
           onSubmit={handleSubmit}
           style={{
@@ -187,10 +157,6 @@ export default function WaitlistForm() {
             boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
           }}
         >
-          {/* Nombre + Email
-              POR QUÉ className="form-grid-2":
-              Esta clase en index.css tiene @media (max-width: 520px) { grid-template-columns: 1fr }
-              → En móvil los campos se apilan. Los inline styles no soportan @media. */}
           <div className="form-grid-2">
             <div>
               <label htmlFor="nombre">Nombre *</label>
@@ -210,7 +176,6 @@ export default function WaitlistForm() {
             </div>
           </div>
 
-          {/* ¿Qué necesitás? */}
           <div style={{ marginBottom: 14 }}>
             <label>¿Qué necesitás? *</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -224,9 +189,9 @@ export default function WaitlistForm() {
                   style={{
                     display: 'flex', flexDirection: 'column', gap: 3,
                     background: form.tipo_usuario === opt.value
-                      ? 'rgba(59,130,246,0.12)' : 'var(--bg3)',
+                      ? 'var(--blue-light)' : 'var(--bg3)',
                     border: `1.5px solid ${form.tipo_usuario === opt.value
-                      ? '#3B82F6' : 'var(--border)'}`,
+                      ? 'var(--blue)' : 'var(--border)'}`,
                     borderRadius: 12,
                     padding: '14px 16px',
                     cursor: 'pointer',
@@ -243,7 +208,7 @@ export default function WaitlistForm() {
                   />
                   <span style={{
                     fontSize: 14, fontWeight: 600,
-                    color: form.tipo_usuario === opt.value ? '#3B82F6' : 'var(--text)',
+                    color: form.tipo_usuario === opt.value ? 'var(--blue)' : 'var(--text)',
                   }}>
                     {opt.label}
                   </span>
@@ -255,7 +220,6 @@ export default function WaitlistForm() {
             </div>
           </div>
 
-          {/* Ciudad + Presupuesto */}
           <div className="form-grid-2">
             <div>
               <label htmlFor="ciudad">Ciudad *</label>
@@ -278,7 +242,6 @@ export default function WaitlistForm() {
             </div>
           </div>
 
-          {/* Mensaje */}
           <div style={{ marginBottom: 24 }}>
             <label htmlFor="mensaje">¿Algo que quieras contarnos? (opcional)</label>
             <textarea
@@ -289,7 +252,6 @@ export default function WaitlistForm() {
             />
           </div>
 
-          {/* Error */}
           {status === 'error' && (
             <div style={{
               background: 'rgba(220,38,38,0.1)',
@@ -301,15 +263,12 @@ export default function WaitlistForm() {
             </div>
           )}
 
-          {/* Submit — background forzado inline para evitar conflictos CSS */}
           <button
             type="submit"
             className="btn-primary"
             disabled={status === 'loading'}
             style={{
               width: '100%', fontSize: 16, padding: '17px',
-              background: '#F97316',
-              boxShadow: '0 4px 20px rgba(249,115,22,0.4)',
             }}
           >
             {status === 'loading' ? 'Guardando...' : 'Quiero acceso anticipado →'}
