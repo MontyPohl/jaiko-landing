@@ -1,0 +1,1394 @@
+ESTRUCTURA DEL PROYECTO:
+./
+    .env.example
+    index.html
+    package.json
+    supabase_migration.sql
+    vite.config.js
+    src/
+        App.jsx
+        index.css
+        main.jsx
+        components/
+            Benefits.jsx
+            Footer.jsx
+            Hero.jsx
+            HowItWorks.jsx
+            Navbar.jsx
+            Problem.jsx
+            WaitlistForm.jsx
+        lib/
+            supabase.js
+        {components,lib}/
+
+==================================================
+CONTENIDO DE LOS ARCHIVOS
+==================================================
+
+
+FILE_PATH: .\.env.example
+----------------------------------------
+# Supabase — copiá este archivo como .env y completá con tus credenciales
+# Las encontrás en: https://app.supabase.com → Settings → API
+
+VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
+VITE_SUPABASE_ANON_KEY=tu-anon-key-publica
+
+----------------------------------------
+
+FILE_PATH: .\index.html
+----------------------------------------
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Jaiko — Encontrá tu roomie ideal. La plataforma más fácil para compartir vivienda en Latinoamérica." />
+    <title>Jaiko — Encontrá tu roomie ideal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+----------------------------------------
+
+FILE_PATH: .\package.json
+----------------------------------------
+{
+  "name": "jaiko-landing",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.100.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8"
+  }
+}
+
+----------------------------------------
+
+FILE_PATH: .\supabase_migration.sql
+----------------------------------------
+-- ============================================================
+-- JAIKO Landing — Tabla waitlist para Supabase
+-- Ejecutá este SQL en: Supabase → SQL Editor → New query
+-- ============================================================
+
+CREATE TABLE waitlist (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nombre        TEXT NOT NULL,
+  email         TEXT NOT NULL UNIQUE,              -- UNIQUE previene duplicados
+  tipo_usuario  TEXT NOT NULL CHECK (
+                  tipo_usuario IN ('busco_roomie', 'ofrezco_habitacion')
+                ),
+  ciudad        TEXT NOT NULL,
+  presupuesto   TEXT,                              -- Opcional
+  mensaje       TEXT,                              -- Opcional
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Índice para consultar por fecha (análisis de registros por día)
+CREATE INDEX idx_waitlist_created_at ON waitlist (created_at DESC);
+
+-- Índice para buscar por ciudad (segmentación)
+CREATE INDEX idx_waitlist_ciudad ON waitlist (ciudad);
+
+-- ── Row Level Security (RLS) ───────────────────────────────
+-- Importante: habilitar RLS para que solo tu backend/dashboard vea los datos
+
+ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
+
+-- Política: cualquiera puede INSERT (el formulario público necesita esto)
+CREATE POLICY "Permitir inserts públicos"
+  ON waitlist
+  FOR INSERT
+  TO anon
+  WITH CHECK (true);
+
+-- Política: solo service_role puede SELECT (tus admins / dashboards)
+-- Si querés leer desde tu propio dashboard de Supabase, ya podés verlo con el rol service_role.
+-- Descomentar la siguiente línea si querés habilitar lectura autenticada:
+-- CREATE POLICY "Solo admins pueden leer" ON waitlist FOR SELECT TO authenticated USING (true);
+
+-- ── Vista útil para analizar los registros ────────────────
+CREATE VIEW waitlist_stats AS
+SELECT
+  ciudad,
+  tipo_usuario,
+  COUNT(*)                  AS total,
+  DATE(created_at)          AS fecha
+FROM waitlist
+GROUP BY ciudad, tipo_usuario, DATE(created_at)
+ORDER BY fecha DESC, total DESC;
+
+----------------------------------------
+
+FILE_PATH: .\vite.config.js
+----------------------------------------
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})
+
+----------------------------------------
+
+FILE_PATH: .\src\App.jsx
+----------------------------------------
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
+import Problem from './components/Problem'
+import HowItWorks from './components/HowItWorks'
+import Benefits from './components/Benefits'
+import WaitlistForm from './components/WaitlistForm'
+import Footer from './components/Footer'
+
+export default function App() {
+  return (
+    <>
+      <Navbar />
+      <main>
+        <Hero />
+        <Problem />
+        <HowItWorks />
+        <Benefits />
+        <WaitlistForm />
+      </main>
+      <Footer />
+    </>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\index.css
+----------------------------------------
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #FFF8F0;
+  --bg2: #FFF2E4;
+  --bg3: #FEECD8;
+  --surface: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
+
+  /* Azul — color primario del app */
+  --blue: #2563EB;
+  --blue-dark: #1D4ED8;
+  --blue-light: #EFF6FF;
+  --blue-mid: #BFDBFE;
+
+  /* Naranja — acento del app */
+  --orange: #F97316;
+  --orange-dark: #EA6C0A;
+  --orange-light: #FFF7ED;
+  --orange-dim: rgba(249, 115, 22, 0.12);
+
+  --accent: var(--orange);
+  --accent-dim: var(--orange-dim);
+  --accent-dark: var(--orange-dark);
+
+  --text: #111827;
+  --text-muted: #6B7280;
+  --text-faint: #D1D5DB;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Typography ── */
+h1, h2, h3 {
+  font-family: var(--font-head);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+/* ── Selection ── */
+::selection {
+  background: var(--orange);
+  color: #fff;
+}
+
+/* ── Utilities ── */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--blue-mid);
+}
+
+/* ── Fade-in animation ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fadeUp 0.6s ease forwards;
+}
+
+/* ── Form shared ── */
+input, select, textarea {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-faint);
+}
+
+select option {
+  background: #ffffff;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--orange);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--orange-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-blue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+.btn-blue:hover {
+  background: var(--blue-dark);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+  background: rgba(0,0,0,0.03);
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\main.jsx
+----------------------------------------
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+
+----------------------------------------
+
+FILE_PATH: .\src\components\Benefits.jsx
+----------------------------------------
+const benefits = [
+  { icon: '🔒', bg: '#EFF6FF', title: 'Seguro', desc: 'Todos los perfiles son verificados para tu tranquilidad.' },
+  { icon: '⚡', bg: '#FFF7ED', title: 'Rápido', desc: 'Encuentra tu roomie ideal en minutos con nuestro sistema inteligente.' },
+  { icon: '🤝', bg: '#F0FDF4', title: 'Confiable', desc: 'Conexiones exitosas y perfiles verificados garantizan confianza.' },
+  { icon: '😊', bg: '#FFF1F2', title: 'Fácil', desc: 'Interfaz intuitiva para crear perfil y buscar roommates sin complicaciones.' },
+  { icon: '📍', bg: '#F5F3FF', title: 'Búsqueda por zona', desc: 'Encontrá opciones en el departamento de Central según tu zona preferida.' },
+  { icon: '👥', bg: '#FFF8F0', title: 'Para los dos lados', desc: 'Buscás roomie o tenés una habitación libre. Jaiko sirve para ambos casos.' },
+]
+
+export default function Benefits() {
+  return (
+    <section style={{
+      padding: '90px 0',
+      background: '#fff',
+      borderTop: '1px solid rgba(0,0,0,0.06)',
+    }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 52 }}>
+          <div style={{ marginBottom: 14 }}>
+            <span className="tag">¿Por qué elegir Jaiko?</span>
+          </div>
+          <h2 style={{
+            fontSize: 'clamp(32px, 4.5vw, 52px)',
+            fontWeight: 800,
+            color: '#111827',
+            marginBottom: 12,
+          }}>
+            Diseñado para que encontrar roomie sea{' '}
+            <span style={{ color: '#F97316' }}>seguro, rápido</span> y sin dramas
+          </h2>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 16,
+        }}>
+          {benefits.map((b, i) => (
+            <div key={i} style={{
+              background: '#FAFAFA',
+              border: '1px solid rgba(0,0,0,0.07)',
+              borderRadius: 16,
+              padding: '28px 24px',
+              display: 'flex',
+              gap: 18,
+              alignItems: 'flex-start',
+              transition: 'box-shadow 0.2s, border-color 0.2s',
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(37,99,235,0.2)'
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(37,99,235,0.08)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(0,0,0,0.07)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <div style={{
+                width: 48,
+                height: 48,
+                background: b.bg,
+                borderRadius: 12,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 22,
+                flexShrink: 0,
+              }}>
+                {b.icon}
+              </div>
+              <div>
+                <h3 style={{
+                  fontFamily: 'var(--font-head)',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: '#111827',
+                  marginBottom: 6,
+                }}>
+                  {b.title}
+                </h3>
+                <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.6 }}>{b.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\components\Footer.jsx
+----------------------------------------
+export default function Footer() {
+  return (
+    <footer style={{
+      background: '#2563EB',
+      padding: '32px 0',
+    }}>
+      <div className="container" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 16,
+      }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{
+            width: 34,
+            height: 34,
+            background: '#fff',
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-head)',
+              fontWeight: 800,
+              fontSize: 16,
+              color: '#2563EB',
+            }}>J!</span>
+          </div>
+          <span style={{
+            fontFamily: 'var(--font-head)',
+            fontWeight: 700,
+            fontSize: 18,
+            color: '#fff',
+          }}>jaiko</span>
+        </div>
+
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>
+          © {new Date().getFullYear()} Jaiko. Paraguay.
+        </p>
+
+        <a
+          href="mailto:hola@jaiko.app"
+          style={{
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: 13,
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={e => e.target.style.color = '#fff'}
+          onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.7)'}
+        >
+          Contacto
+        </a>
+      </div>
+    </footer>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\components\Hero.jsx
+----------------------------------------
+export default function Hero() {
+  return (
+    <section style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      paddingTop: 80,
+      paddingBottom: 80,
+      position: 'relative',
+      overflow: 'hidden',
+      background: 'linear-gradient(160deg, #EFF6FF 0%, #FFF8F0 50%, #FFF7ED 100%)',
+    }}>
+      {/* Decorative blobs */}
+      <div style={{
+        position: 'absolute', top: '10%', right: '-5%',
+        width: 400, height: 400,
+        background: 'radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', bottom: '10%', left: '-5%',
+        width: 350, height: 350,
+        background: 'radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      <div className="container" style={{ position: 'relative' }}>
+        {/* Badge */}
+        <div style={{ marginBottom: 28, animation: 'fadeUp 0.5s ease forwards' }}>
+          <span className="tag">
+            <span style={{ width: 6, height: 6, background: '#F97316', borderRadius: '50%', display: 'inline-block' }} />
+            Lista de espera abierta
+          </span>
+        </div>
+
+        {/* Headline */}
+        <h1 style={{
+          fontSize: 'clamp(48px, 7.5vw, 88px)',
+          fontWeight: 800,
+          lineHeight: 1.0,
+          letterSpacing: '-0.04em',
+          color: '#111827',
+          marginBottom: 24,
+          animation: 'fadeUp 0.5s ease 0.1s both forwards',
+        }}>
+          Encontrá tu<br />
+          <span style={{ color: '#2563EB' }}>roommie ideal</span><br />
+          <span style={{ color: '#F97316' }}>que esperas?.</span>
+        </h1>
+
+        {/* Subheadline */}
+        <p style={{
+          fontSize: 'clamp(16px, 2vw, 20px)',
+          color: '#6B7280',
+          maxWidth: 520,
+          lineHeight: 1.65,
+          marginBottom: 40,
+          fontWeight: 300,
+          animation: 'fadeUp 0.5s ease 0.2s both forwards',
+        }}>
+          Jaiko conecta personas que buscan compañero de vivienda con quienes tienen una habitación libre. Según tus preferencias, de forma segura.
+        </p>
+
+        {/* CTAs */}
+        <div style={{
+          display: 'flex',
+          gap: 14,
+          flexWrap: 'wrap',
+          animation: 'fadeUp 0.5s ease 0.3s both forwards',
+        }}>
+          <a href="#waitlist">
+            <button className="btn-primary" style={{ fontSize: 16, padding: '16px 34px' }}>
+              Anotarme en la lista →
+            </button>
+          </a>
+          <a href="#como-funciona">
+            <button className="btn-ghost" style={{ fontSize: 15, padding: '16px 26px' }}>
+              ¿Cómo funciona?
+            </button>
+          </a>
+        </div>
+
+        {/* Social proof */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          marginTop: 44,
+          animation: 'fadeUp 0.5s ease 0.4s both forwards',
+        }}>
+          <div style={{ display: 'flex' }}>
+            {['#818CF8', '#34D399', '#FBBF24', '#F87171', '#60A5FA'].map((color, i) => (
+              <div key={i} style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: color,
+                border: '2px solid #fff',
+                marginLeft: i > 0 ? -9 : 0,
+                boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+              }} />
+            ))}
+          </div>
+          <p style={{ fontSize: 14, color: '#6B7280' }}>
+            <strong style={{ color: '#111827' }}></strong> asegurate de ser parte de esta revolucionaria forma de encontrar roomies.
+          </p>
+        </div>
+
+        {/* Feature pills */}
+        <div style={{
+          display: 'flex',
+          gap: 10,
+          flexWrap: 'wrap',
+          marginTop: 48,
+          animation: 'fadeUp 0.5s ease 0.5s both forwards',
+        }}>
+          {[
+            { icon: '🔍', label: 'Buscar roomies' },
+            { icon: '🏠', label: 'Publicar habitación' },
+            { icon: '👥', label: 'Grupos de búsqueda' },
+            { icon: '💬', label: 'Chat directo' },
+          ].map((pill, i) => (
+            <div key={i} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: '#fff',
+              border: '1px solid rgba(0,0,0,0.08)',
+              borderRadius: 100,
+              padding: '8px 16px',
+              fontSize: 13,
+              color: '#374151',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+            }}>
+              <span style={{ fontSize: 14 }}>{pill.icon}</span>
+              {pill.label}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\components\HowItWorks.jsx
+----------------------------------------
+const steps = [
+  {
+    number: '1',
+    color: '#EFF6FF',
+    iconBg: '#2563EB',
+    icon: '📝',
+    title: 'Creá tu perfil',
+    desc: 'Contanos quién sos, tus hábitos, tu presupuesto y la zona de Central donde querés vivir.',
+  },
+  {
+    number: '2',
+    color: '#FFF7ED',
+    iconBg: '#F97316',
+    icon: '🔍',
+    title: 'Explorá perfiles',
+    desc: 'Nuestro sistema te muestra personas compatibles según tus preferencias de convivencia.',
+  },
+  {
+    number: '3',
+    color: '#F0FDF4',
+    iconBg: '#16A34A',
+    icon: '💬',
+    title: 'Conectá y acordá',
+    desc: 'Chateá con los candidatos, conocanse y definan juntos las condiciones del alquiler compartido.',
+  },
+  {
+    number: '4',
+    color: '#FFF1F2',
+    iconBg: '#E11D48',
+    icon: '🏠',
+    title: '¡A vivir!',
+    desc: 'Mudense y disfruten de su nuevo hogar compartiendo los gastos equitativamente.',
+  },
+]
+
+export default function HowItWorks() {
+  return (
+    <section id="como-funciona" style={{
+      padding: '90px 0',
+      background: '#F8FAFF',
+      borderTop: '1px solid rgba(0,0,0,0.06)',
+    }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 60 }}>
+          <div style={{ marginBottom: 14 }}>
+            <span className="tag">¿Cómo funciona?</span>
+          </div>
+          <h2 style={{
+            fontSize: 'clamp(32px, 4.5vw, 52px)',
+            fontWeight: 800,
+            color: '#111827',
+            marginBottom: 14,
+          }}>
+            En solo 4 pasos estás conectando<br />
+            con tu futuro <span style={{ color: '#2563EB' }}>roomie</span>
+          </h2>
+          <p style={{ color: '#6B7280', fontSize: 16, maxWidth: 480, margin: '0 auto' }}>
+            De forma segura y sin complicaciones.
+          </p>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 20,
+        }}>
+          {steps.map((step, i) => (
+            <div key={i} style={{
+              background: '#fff',
+              border: '1px solid rgba(0,0,0,0.07)',
+              borderRadius: 18,
+              padding: '28px 24px 32px',
+              textAlign: 'center',
+              position: 'relative',
+              transition: 'box-shadow 0.2s, transform 0.2s',
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.1)'
+                e.currentTarget.style.transform = 'translateY(-3px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.boxShadow = 'none'
+                e.currentTarget.style.transform = 'none'
+              }}
+            >
+              {/* Step number badge */}
+              <div style={{
+                position: 'absolute',
+                top: -14,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 28,
+                height: 28,
+                background: step.iconBg,
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'var(--font-head)',
+                fontWeight: 700,
+                fontSize: 13,
+                color: '#fff',
+                border: '2px solid #fff',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              }}>
+                {step.number}
+              </div>
+
+              {/* Icon */}
+              <div style={{
+                width: 64,
+                height: 64,
+                background: step.color,
+                borderRadius: 16,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 28,
+                margin: '12px auto 18px',
+              }}>
+                {step.icon}
+              </div>
+
+              <h3 style={{
+                fontFamily: 'var(--font-head)',
+                fontSize: 17,
+                fontWeight: 700,
+                color: '#111827',
+                marginBottom: 8,
+              }}>
+                {step.title}
+              </h3>
+              <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.6 }}>
+                {step.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\components\Navbar.jsx
+----------------------------------------
+import { useState, useEffect } from 'react'
+
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return (
+    <nav style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 100,
+      background: '#2563EB',
+      boxShadow: scrolled ? '0 2px 16px rgba(37,99,235,0.25)' : 'none',
+      transition: 'box-shadow 0.3s ease',
+    }}>
+      <div className="container" style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: 56,
+      }}>
+        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{
+            width: 38,
+            height: 38,
+            background: '#fff',
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-head)',
+              fontWeight: 800,
+              fontSize: 18,
+              color: '#2563EB',
+              lineHeight: 1,
+            }}>J!</span>
+          </div>
+          <span style={{
+            fontFamily: 'var(--font-head)',
+            fontWeight: 700,
+            fontSize: 20,
+            color: '#fff',
+            letterSpacing: '-0.03em',
+          }}>jaiko</span>
+        </a>
+
+        <a href="#waitlist">
+          <button style={{
+            background: '#F97316',
+            color: '#fff',
+            fontFamily: 'var(--font-head)',
+            fontWeight: 700,
+            fontSize: 14,
+            padding: '10px 22px',
+            borderRadius: 100,
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(249,115,22,0.35)',
+            transition: 'background 0.15s, transform 0.15s',
+          }}>
+            Quiero acceso anticipado →
+          </button>
+        </a>
+      </div>
+    </nav>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\components\Problem.jsx
+----------------------------------------
+const problems = [
+  {
+    icon: '💸',
+    title: 'Vivir solo es caro',
+    desc: 'El alquiler en Asunción y el área metropolitana se lleva una parte enorme del sueldo. Compartir lo reduce a la mitad.',
+  },
+  {
+    icon: '😰',
+    title: 'Encontrar roomie es un caos',
+    desc: 'Grupos de WhatsApp, publicaciones en Facebook, conocidos de conocidos... sin ningún filtro serio ni garantías.',
+  },
+  {
+    icon: '🎲',
+    title: 'No sabés con quién vas a convivir',
+    desc: 'Llevar a alguien sin información real es una lotería. Malos hábitos, desorden, impuntualidad con las expensas.',
+  },
+]
+
+export default function Problem() {
+  return (
+    <section style={{
+      padding: '90px 0',
+      background: '#fff',
+      borderTop: '1px solid rgba(0,0,0,0.06)',
+    }}>
+      <div className="container">
+        <div style={{ marginBottom: 14 }}>
+          <span className="tag">El problema</span>
+        </div>
+
+        <h2 style={{
+          fontSize: 'clamp(32px, 4.5vw, 52px)',
+          fontWeight: 800,
+          marginBottom: 52,
+          maxWidth: 580,
+          color: '#111827',
+        }}>
+          Conseguir vivienda compartida en Paraguay está{' '}
+          <span style={{ color: '#EF4444' }}>dificil.</span>
+        </h2>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 18,
+        }}>
+          {problems.map((p, i) => (
+            <div key={i} style={{
+              background: '#FFF8F0',
+              border: '1px solid rgba(249,115,22,0.15)',
+              borderRadius: 16,
+              padding: '28px 28px 32px',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(249,115,22,0.4)'
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(249,115,22,0.1)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(249,115,22,0.15)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <span style={{ fontSize: 34, display: 'block', marginBottom: 14 }}>{p.icon}</span>
+              <h3 style={{
+                fontFamily: 'var(--font-head)',
+                fontSize: 19,
+                fontWeight: 700,
+                marginBottom: 10,
+                color: '#111827',
+              }}>
+                {p.title}
+              </h3>
+              <p style={{ color: '#6B7280', fontSize: 15, lineHeight: 1.6 }}>
+                {p.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\components\WaitlistForm.jsx
+----------------------------------------
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
+
+// Ciudades del Departamento Central, Paraguay
+const CIUDADES = [
+  'Asunción',
+  'Fernando de la Mora',
+  'Luque',
+  'San Lorenzo',
+  'Lambaré',
+  'Capiatá',
+  'Mariano Roque Alonso',
+  'Ñemby',
+  'Villa Elisa',
+  'Itauguá',
+  'Guarambaré',
+  'Ypacaraí',
+  'Limpio',
+  'Villeta',
+  'Itá',
+  'Areguá',
+  'Otra zona de Central',
+]
+
+const initialForm = {
+  nombre: '',
+  email: '',
+  tipo_usuario: '',
+  ciudad: '',
+  presupuesto: '',
+  mensaje: '',
+}
+
+export default function WaitlistForm() {
+  const [form, setForm] = useState(initialForm)
+  const [status, setStatus] = useState('idle') // idle | loading | success | error
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('loading')
+    setErrorMsg('')
+
+    if (!form.nombre.trim() || !form.email.trim() || !form.tipo_usuario || !form.ciudad) {
+      setErrorMsg('Por favor completá todos los campos obligatorios.')
+      setStatus('error')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(form.email)) {
+      setErrorMsg('El email no parece válido.')
+      setStatus('error')
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([{
+          nombre: form.nombre.trim(),
+          email: form.email.trim().toLowerCase(),
+          tipo_usuario: form.tipo_usuario,
+          ciudad: form.ciudad,
+          presupuesto: form.presupuesto || null,
+          mensaje: form.mensaje.trim() || null,
+        }])
+
+      if (error) {
+        if (error.code === '23505') {
+          setErrorMsg('Ese email ya está registrado. ¡Ya estás en la lista! 🎉')
+        } else {
+          setErrorMsg('Hubo un problema al guardar. Intentá de nuevo.')
+          console.error('Supabase error:', error)
+        }
+        setStatus('error')
+        return
+      }
+
+      setStatus('success')
+      setForm(initialForm)
+    } catch (err) {
+      setErrorMsg('Error inesperado. Intentá más tarde.')
+      console.error(err)
+      setStatus('error')
+    }
+  }
+
+  if (status === 'success') {
+    return (
+      <section id="waitlist" style={{
+        padding: '90px 0',
+        background: '#F8FAFF',
+        borderTop: '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <div className="container" style={{ maxWidth: 560 }}>
+          <div style={{
+            background: '#fff',
+            border: '1px solid rgba(37,99,235,0.2)',
+            borderRadius: 24,
+            padding: '56px 40px',
+            textAlign: 'center',
+            boxShadow: '0 8px 40px rgba(37,99,235,0.08)',
+          }}>
+            <span style={{ fontSize: 52, display: 'block', marginBottom: 20 }}>🎉</span>
+            <h2 style={{
+              fontFamily: 'var(--font-head)',
+              fontSize: 32,
+              fontWeight: 800,
+              color: '#111827',
+              marginBottom: 10,
+            }}>
+              ¡Ya estás dentro!
+            </h2>
+            <p style={{ color: '#6B7280', fontSize: 16, lineHeight: 1.6, marginBottom: 28 }}>
+              Te avisamos en cuanto abramos el acceso. Vas a ser de las primeras personas en probar Jaiko.
+            </p>
+            <div style={{
+              background: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              borderRadius: 12,
+              padding: '14px 18px',
+              fontSize: 14,
+              color: '#1D4ED8',
+              lineHeight: 1.6,
+            }}>
+              💡 Compartí Jaiko con amigos que buscan roomie. Mientras más personas se anoten, antes abrimos.
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section id="waitlist" style={{
+      padding: '90px 0',
+      background: '#F8FAFF',
+      borderTop: '1px solid rgba(0,0,0,0.06)',
+    }}>
+      <div className="container" style={{ maxWidth: 680 }}>
+        {/* Header */}
+        <div style={{ marginBottom: 14 }}>
+          <span className="tag">Acceso anticipado</span>
+        </div>
+        <h2 style={{
+          fontFamily: 'var(--font-head)',
+          fontSize: 'clamp(32px, 4.5vw, 50px)',
+          fontWeight: 800,
+          color: '#111827',
+          marginBottom: 14,
+          letterSpacing: '-0.03em',
+        }}>
+          Anotate en la<br />
+          <span style={{ color: '#F97316' }}>lista de espera.</span>
+        </h2>
+        <p style={{ color: '#6B7280', fontSize: 16, marginBottom: 44, maxWidth: 460, lineHeight: 1.6 }}>
+          Sé de los primeros en acceder cuando abramos. Te avisamos directamente.
+        </p>
+
+        {/* Form card */}
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            background: '#fff',
+            border: '1px solid rgba(0,0,0,0.08)',
+            borderRadius: 24,
+            padding: 'clamp(24px, 5vw, 44px)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+          }}
+        >
+          {/* Nombre + Email */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+            <div>
+              <label htmlFor="nombre">Nombre *</label>
+              <input
+                id="nombre"
+                name="nombre"
+                type="text"
+                placeholder="Tu nombre"
+                value={form.nombre}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="email">Email *</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="tu@email.com"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Tipo usuario */}
+          <div style={{ marginBottom: 14 }}>
+            <label>¿Qué necesitás? *</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {[
+                { value: 'busco_roomie', label: '🔍 Busco roomie', sub: 'Quiero compartir vivienda' },
+                { value: 'ofrezco_habitacion', label: '🏠 Ofrezco habitación', sub: 'Tengo espacio disponible' },
+              ].map(opt => (
+                <label
+                  key={opt.value}
+                  htmlFor={opt.value}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                    background: form.tipo_usuario === opt.value ? '#EFF6FF' : '#FAFAFA',
+                    border: `1.5px solid ${form.tipo_usuario === opt.value ? '#2563EB' : 'rgba(0,0,0,0.08)'}`,
+                    borderRadius: 12,
+                    padding: '14px 16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    marginBottom: 0,
+                  }}
+                >
+                  <input
+                    type="radio"
+                    id={opt.value}
+                    name="tipo_usuario"
+                    value={opt.value}
+                    checked={form.tipo_usuario === opt.value}
+                    onChange={handleChange}
+                    style={{ display: 'none' }}
+                  />
+                  <span style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: form.tipo_usuario === opt.value ? '#2563EB' : '#111827',
+                  }}>
+                    {opt.label}
+                  </span>
+                  <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 300 }}>
+                    {opt.sub}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Ciudad + Presupuesto */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+            <div>
+              <label htmlFor="ciudad">Ciudad *</label>
+              <select
+                id="ciudad"
+                name="ciudad"
+                value={form.ciudad}
+                onChange={handleChange}
+                required
+                style={{ cursor: 'pointer' }}
+              >
+                <option value="">Seleccioná tu ciudad</option>
+                {CIUDADES.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="presupuesto">Presupuesto mensual (opcional)</label>
+              <input
+                id="presupuesto"
+                name="presupuesto"
+                type="text"
+                placeholder="Ej: ₲ 1.500.000"
+                value={form.presupuesto}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* Mensaje */}
+          <div style={{ marginBottom: 24 }}>
+            <label htmlFor="mensaje">¿Algo que quieras contarnos? (opcional)</label>
+            <textarea
+              id="mensaje"
+              name="mensaje"
+              rows={3}
+              placeholder="Zonas de interés, situación actual, qué tipo de roomie buscás..."
+              value={form.mensaje}
+              onChange={handleChange}
+              style={{ resize: 'vertical' }}
+            />
+          </div>
+
+          {/* Error */}
+          {status === 'error' && (
+            <div style={{
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: 10,
+              padding: '12px 16px',
+              color: '#DC2626',
+              fontSize: 14,
+              marginBottom: 18,
+            }}>
+              {errorMsg}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={status === 'loading'}
+            style={{ width: '100%', fontSize: 16, padding: '17px' }}
+          >
+            {status === 'loading' ? 'Guardando...' : 'Quiero acceso anticipado →'}
+          </button>
+
+          <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 12, marginTop: 14 }}>
+            Sin spam. Te avisamos cuando abramos.
+          </p>
+        </form>
+      </div>
+    </section>
+  )
+}
+
+----------------------------------------
+
+FILE_PATH: .\src\lib\supabase.js
+----------------------------------------
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('⚠️  Faltan las variables de entorno de Supabase. Revisá el archivo .env')
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+----------------------------------------
