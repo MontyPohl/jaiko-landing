@@ -20,7 +20,7 @@ const CIUDADES = [
   'Asunción', 'Fernando de la Mora', 'Luque', 'San Lorenzo',
   'Lambaré', 'Capiatá', 'Mariano Roque Alonso', 'Ñemby',
   'Villa Elisa', 'Itauguá', 'Guarambaré', 'Ypacaraí',
-  'Limpio', 'Villeta', 'Itá', 'Areguá', 'Otra zona de Central','Otra ciudad de Paraguay','Otro país',
+  'Limpio', 'Villeta', 'Itá', 'Areguá', 'Otra zona de Central',
 ]
 
 const initialForm = {
